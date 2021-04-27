@@ -56,8 +56,6 @@ namespace TRMDesktopUILibrary.API
             }
         }
 
-
-
         public async Task GetLoggedInUserInfo(string token)
         {
             apiClient.DefaultRequestHeaders.Clear();
