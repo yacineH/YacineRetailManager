@@ -5,14 +5,39 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TRMDesktopUILibrary.API;
+using TRMDesktopUILibrary.Model;
 
 namespace TRMDesktopUI.ViewModels
 {
     public class SalesViewModel :Screen
     {
-        private BindingList<string> _products;
+        private IProductEndPoint _productEndPoint;
 
-        public BindingList<string> Products
+        public  SalesViewModel(IProductEndPoint productEndPoint)
+        {
+            _productEndPoint = productEndPoint;       
+        }
+          
+        //c'est une astuce pour ne pas le mette dans le contructeur
+        //car le constructeur ne peut pas etre async
+        //et pour l'appeler on attend la fin de levenement onload
+        protected async override void OnViewLoaded(object view)
+        {
+            base.OnViewLoaded(view);
+            await LoadProducts();
+        }
+
+        private async Task LoadProducts()
+        {
+            var productList = await _productEndPoint.GetAll();
+            Products = new BindingList<ProductModel>(productList);
+        }
+
+
+        private BindingList<ProductModel> _products;
+
+        public BindingList<ProductModel> Products
         {
             get { return _products; }
             set 

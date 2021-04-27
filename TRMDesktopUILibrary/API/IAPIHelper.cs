@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using TRMDesktopUILibrary.Model;
 
 namespace TRMDesktopUILibrary.API
@@ -7,5 +8,7 @@ namespace TRMDesktopUILibrary.API
     {
         Task<AuthenticatedUser> Authenticate(string username, string password);
         Task GetLoggedInUserInfo(string token);
+
+        HttpClient ApiClient { get; }
     }
 }
