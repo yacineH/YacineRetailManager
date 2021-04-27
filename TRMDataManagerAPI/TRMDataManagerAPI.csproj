@@ -319,9 +319,9 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TRMDLL\TRMDLL.csproj">
+    <ProjectReference Include="..\TRMDLL\TRMDataManagerAPILibrary.csproj">
       <Project>{97899165-C85D-4FBE-82E7-CDE41D073D09}</Project>
-      <Name>TRMDLL</Name>
+      <Name>TRMDataManagerAPILibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
