@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using TRMDesktopUI.Helpers;
 using TRMDesktopUI.ViewModels;
 using TRMDesktopUILibrary.API;
+using TRMDesktopUILibrary.Helpers;
 using TRMDesktopUILibrary.Model;
 
 namespace TRMDesktopUI
@@ -35,7 +36,8 @@ namespace TRMDesktopUI
             _container
                 .Singleton<IWindowManager, WindowManager>()
                 .Singleton<IEventAggregator, EventAggregator>()
-                .Singleton<ILoggedInUserModel,LoggedInUserModel>()
+                .Singleton<ILoggedInUserModel, LoggedInUserModel>()
+                .Singleton<IConfigHelper, ConfigHelper>()
                 .Singleton<IAPIHelper, APIHelper>();
                 
 
