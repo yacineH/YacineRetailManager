@@ -18,7 +18,7 @@ namespace TRMDesktopUI.ViewModels
         private string _errorMessage;
         private IEventAggregator _events;
 
-        public LoginViewModel(APIHelper apiHelper,IEventAggregator events)
+        public LoginViewModel(IAPIHelper apiHelper,IEventAggregator events)
         {
             _apiHelper = apiHelper;
             _events = events;
