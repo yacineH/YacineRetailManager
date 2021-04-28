@@ -13,22 +13,25 @@ namespace TRMDesktopUI.ViewModels
         //private LoginViewModel _loginVM;
         private IEventAggregator _events;
         private SalesViewModel _salesVM;
-        private SimpleContainer _container;
+        //private SimpleContainer _container;
 
-        public ShellViewModel(IEventAggregator events,SalesViewModel salesVM,
-                              SimpleContainer container)
+        public ShellViewModel(IEventAggregator events,SalesViewModel salesVM)
+                              //SimpleContainer container)
         {
             //_loginVM = loginVM;
             _salesVM = salesVM;
             _events = events;
-            _container = container;
+            //_container = container;
 
             _events.Subscribe(this);
 
             //parceque a chaque fois sellview generer on obtien
             //un nouveau LoginViewModel
             //ActivateItem(_loginVM);
-            ActivateItem(_container.GetInstance<LoginViewModel>());
+            //ActivateItem(_container.GetInstance<LoginViewModel>());
+
+            //remplacer par ca 
+            ActivateItem(IoC.Get<LoginViewModel>());
         }
 
         public void Handle(LogOnEvent message)
