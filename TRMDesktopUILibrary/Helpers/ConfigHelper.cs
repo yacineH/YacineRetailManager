@@ -12,7 +12,7 @@ namespace TRMDesktopUILibrary.Helpers
         public decimal GetTaxRate()
         {
 
-            string rateText = ConfigurationManager.AppSettings["textRate"];
+            string rateText = ConfigurationManager.AppSettings["taxRate"];
 
             bool isValidTextRate = decimal.TryParse(rateText, out decimal output);
 

@@ -206,9 +206,9 @@ namespace TRMDesktopUI.ViewModels
             SelectedProduct.QuantityInStock -= ItemQuantity;
             ItemQuantity = 1;
             NotifyOfPropertyChange(()=>SubTotal);
-            NotifyOfPropertyChange(() => Tax);
-            NotifyOfPropertyChange(() => Total);
-            NotifyOfPropertyChange(() => CanCheckOut);
+            NotifyOfPropertyChange(()=>Tax);
+            NotifyOfPropertyChange(()=>Total);
+            NotifyOfPropertyChange(()=>CanCheckOut);
         }
 
         public bool CanRemoveFromCart
@@ -238,10 +238,10 @@ namespace TRMDesktopUI.ViewModels
                 Cart.Remove(SelectedCartItem);
             }
 
-            NotifyOfPropertyChange(() => SubTotal);
-            NotifyOfPropertyChange(() => Tax);
-            NotifyOfPropertyChange(() => Total);
-            NotifyOfPropertyChange(() => CanCheckOut);
+            NotifyOfPropertyChange(()=>SubTotal);
+            NotifyOfPropertyChange(()=>Tax);
+            NotifyOfPropertyChange(()=>Total);
+            NotifyOfPropertyChange(()=>CanCheckOut);
         }
 
         public bool CanCheckOut
