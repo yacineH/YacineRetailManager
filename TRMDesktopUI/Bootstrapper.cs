@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿using AutoMapper;
+using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using TRMDesktopUI.Helpers;
+using TRMDesktopUI.Models;
 using TRMDesktopUI.ViewModels;
 using TRMDesktopUILibrary.API;
 using TRMDesktopUILibrary.Helpers;
@@ -28,12 +30,31 @@ namespace TRMDesktopUI
                   "PasswordChanged");
         }
 
+        private IMapper ConfigureAutomapper()
+        {
+            //mapping ProductModel (trmdll) avec ProductDisplay model(trmUI)
+            //trmdisplay implement inotifyproperty changed pour ne pas recopier
+            //tous les champs Automapper
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<ProductModel, ProductDisplayModel>();
+                cfg.CreateMap<CartItemModel, CartItemDisplayModel>();
+            });
+            var output = config.CreateMapper();
+
+            return output;
+        }
         protected override void Configure()
         {
+            
+            _container.Instance(ConfigureAutomapper());
+
+            //Dependency injection container (caliburn micro)
+            //ici container pour chaque instance un objet different
             _container.Instance(_container)
                 .PerRequest<IProductEndPoint, ProductEndPoint>()
                 .PerRequest<ISaleEndPoint, SaleEndPoint>();
-
+            //ici container retourne une seul instance pour toutes les instances singleton
             _container
                 .Singleton<IWindowManager, WindowManager>()
                 .Singleton<IEventAggregator, EventAggregator>()
