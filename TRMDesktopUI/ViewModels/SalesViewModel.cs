@@ -30,6 +30,7 @@ namespace TRMDesktopUI.ViewModels
             _mapper = mapper;
         }
           
+
         //c'est une astuce pour ne pas le mette dans le contructeur
         //car le constructeur ne peut pas etre async
         //et pour l'appeler on attend la fin de levenement onload
@@ -71,6 +72,21 @@ namespace TRMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => CanAddToCart);
             }
         }
+
+        private async Task ResetSalesViewModel()
+        {
+            Cart = new BindingList<CartItemDisplayModel>();
+           
+            await LoadProducts();
+
+            NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
+
+        }
+
+
 
         private CartItemDisplayModel _selectedCartItem;
 
@@ -217,7 +233,7 @@ namespace TRMDesktopUI.ViewModels
             {
                 bool output = false;
 
-                if (SelectedCartItem != null && SelectedCartItem?.Product.QuantityInStock > 0)
+                if (SelectedCartItem != null && SelectedCartItem?.QuantityInCart > 0)
                 {
                     output = true;
                 }
@@ -242,6 +258,7 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(()=>Tax);
             NotifyOfPropertyChange(()=>Total);
             NotifyOfPropertyChange(()=>CanCheckOut);
+            NotifyOfPropertyChange(() => CanAddToCart);
         }
 
         public bool CanCheckOut
@@ -274,6 +291,7 @@ namespace TRMDesktopUI.ViewModels
 
            await _saleEndPoint.PostSale(sale);
 
+           await ResetSalesViewModel();
         }
     }
 }

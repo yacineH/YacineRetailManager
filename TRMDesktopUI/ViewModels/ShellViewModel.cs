@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Caliburn.Micro;
 using TRMDesktopUI.EventModels;
+using TRMDesktopUILibrary.Model;
 
 namespace TRMDesktopUI.ViewModels
 {
@@ -13,14 +14,16 @@ namespace TRMDesktopUI.ViewModels
         //private LoginViewModel _loginVM;
         private IEventAggregator _events;
         private SalesViewModel _salesVM;
+        private ILoggedInUserModel _user;
         //private SimpleContainer _container;
 
-        public ShellViewModel(IEventAggregator events,SalesViewModel salesVM)
+        public ShellViewModel(IEventAggregator events,SalesViewModel salesVM,ILoggedInUserModel user)
                               //SimpleContainer container)
         {
             //_loginVM = loginVM;
             _salesVM = salesVM;
             _events = events;
+            _user = user;
             //_container = container;
 
             _events.Subscribe(this);
@@ -34,9 +37,34 @@ namespace TRMDesktopUI.ViewModels
             ActivateItem(IoC.Get<LoginViewModel>());
         }
 
+        public bool IsLoggedIn
+        {
+            get
+            {
+                bool output = false;
+                if (string.IsNullOrWhiteSpace(_user.Token) == false)
+                {
+                    output = true;
+                }
+                return output;
+            }
+        }
+
+        public void ExitApplication()
+        {
+            TryClose();
+        }
+
+        public void LogOut()
+        {
+            _user.LogOffUser();
+            ActivateItem(IoC.Get<LoginViewModel>());
+            NotifyOfPropertyChange(() => IsLoggedIn);
+        }
         public void Handle(LogOnEvent message)
         {
             ActivateItem(_salesVM);
+            NotifyOfPropertyChange(()=> IsLoggedIn);
             //_loginVM = _container.GetInstance<LoginViewModel>();
         }
     }
