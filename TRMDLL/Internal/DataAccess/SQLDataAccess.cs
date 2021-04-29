@@ -10,35 +10,129 @@ using System.Threading.Tasks;
 
 namespace TRMDLL.Internal.DataAccess
 {
-    internal class SQLDataAccess
+    internal class SQLDataAccess : IDisposable
     {
         public string GetConnectionString(string name)
         {
             return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
 
-        public List<T> LoadData<T,U>(string storedProcedure,U parameters,string connectionStringName)
+        public List<T> LoadData<T, U>(string storedProcedure, U parameters, string connectionStringName)
         {
             string connectionString = GetConnectionString(connectionStringName);
-            using (IDbConnection connection = new SqlConnection(connectionString)) 
+            using (IDbConnection connection = new SqlConnection(connectionString))
             {
-                List<T> rows = connection.Query<T>(storedProcedure, parameters, 
+                List<T> rows = connection.Query<T>(storedProcedure, parameters,
                                commandType: CommandType.StoredProcedure).ToList();
 
                 return rows;
             }
         }
-
-        public void SaveData<T>(string storedProcedure,T parameters, string connectionStringName)
+        public void SaveData<T>(string storedProcedure, T parameters, string connectionStringName)
         {
             string connectionString = GetConnectionString(connectionStringName);
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
-                   connection.Execute(storedProcedure, parameters,
-                     commandType: CommandType.StoredProcedure);
+                connection.Execute(storedProcedure, parameters,
+                  commandType: CommandType.StoredProcedure);
             }
         }
 
 
+        #region Transaction
+    private IDbConnection _connection;
+        private IDbTransaction _transaction;
+
+        public void StartTransaction(string connectionStringName)
+        {
+            //pas de using implicit pour se connecter 
+            _connection = new SqlConnection(connectionStringName);
+            _connection.Open();
+            _transaction = _connection.BeginTransaction();
+        }
+
+        //param :value permet de ne pas suivre l'order of parameter dans la signature 
+        //de la methode
+        public List<T> LoadDataInTransaction<T, U>(string storedProcedure, U parameters)
+        {
+            List<T> rows = _connection.Query<T>(storedProcedure, parameters,
+                           commandType: CommandType.StoredProcedure, transaction: _transaction).ToList();
+
+            return rows;
+        }
+
+
+        public void SaveDataInTransaction<T>(string storedProcedure, T parameters)
+        {
+
+            _connection.Execute(storedProcedure, parameters,
+            commandType: CommandType.StoredProcedure, transaction: _transaction);
+        }
+
+        public void CommitTransaction()
+        {
+            _transaction?.Commit();
+            _connection?.Close();
+        }
+
+        public void RoolBackTransaction()
+        {
+            _transaction?.Rollback();
+            _connection?.Close();
+        }
+
+        #endregion
+
+ 
+
+        public void Dispose()
+        {
+            CommitTransaction();
+        }
+
+
+
     }
+
+    //Pourqoui transaction?
+    //=====================
+    //le using le fait normalement appel le dispose pour fermeture de connection
+    //ici on le rajout pour la transaction car dans une transaction on va pas
+    //utiliser le using car on se sait pas quand elle finit la transaction si il
+    //faut un rollback
+
+    //implementation avant transaction
+    //=================================
+    //premier version sans transaction et sans IDisposable
+    //internal class SQLDataAccess : IDisposable
+    //{
+    //    public string GetConnectionString(string name)
+    //    {
+    //        return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+    //    }
+
+    //public List<T> LoadData<T,U>(string storedProcedure,U parameters,string connectionStringName)
+    //{
+    //    string connectionString = GetConnectionString(connectionStringName);
+    //    using (IDbConnection connection = new SqlConnection(connectionString)) 
+    //    {
+    //        List<T> rows = connection.Query<T>(storedProcedure, parameters, 
+    //                       commandType: CommandType.StoredProcedure).ToList();
+
+    //        return rows;
+    //    }
+    //}
+
+    //implementatio Save Data InTransaction
+    //public void SaveData<T>(string storedProcedure, T parameters, string connectionStringName)
+    //{
+    //    string connectionString = GetConnectionString(connectionStringName);
+    //    using (IDbConnection connection = new SqlConnection(connectionString))
+    //    {
+    //        connection.Execute(storedProcedure, parameters,
+    //          commandType: CommandType.StoredProcedure);
+    //    }
+    //}
+    //}
+
 }

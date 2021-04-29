@@ -52,20 +52,56 @@ namespace TRMDLL.DataAccess
 
             sale.Total = sale.Subtotal + sale.Tax;
 
+            #region version initial 
             //save the sale model
-            SQLDataAccess sql = new SQLDataAccess();
-            sql.SaveData<SaleDBModel>("dbo.spSale_Insert", sale, "TRMDataBase");
+            //SQLDataAccess sql = new SQLDataAccess();
+            //sql.SaveData<SaleDBModel>("dbo.spSale_Insert", sale, "TRMDataBase");
 
-            //get the id from the sale mode
-            sale.Id=sql.LoadData<int, dynamic>("dbo.spSale_Lookup", new {sale.CashierId,sale.SaleDate }, "TRMDataBase").FirstOrDefault();
+            ////get the id from the sale mode
+            //sale.Id=sql.LoadData<int, dynamic>("dbo.spSale_Lookup", new {sale.CashierId,sale.SaleDate }, "TRMDataBase").FirstOrDefault();
            
-            //finish filling in the detail models
-            foreach (var item in details)
+            ////finish filling in the detail models
+            //foreach (var item in details)
+            //{
+            //    item.SaleId = sale.Id;
+            //    //save the sale detail models
+            //    sql.SaveData("dbo.spSaleDetail_Insert", item, "TRMDataBase");//ici on commence a inserer SaleDetail imaginos il y'a quatre
+            //                                                                 //et l'insertion du dernier plante big probleme
+            //}
+            #endregion
+
+            #region Rapped in transaction (transaction in C#)(faire attention a la non fermeture des transactions problemes de performance)
+            
+            using (SQLDataAccess sql = new SQLDataAccess())
             {
-                item.SaleId = sale.Id;
-                //save the sale detail models
-                sql.SaveData("dbo.spSaleDetail_Insert", item, "TRMDataBase");
+                try
+                {
+                    sql.StartTransaction("TRMDataBase");
+
+                    //save the sale model
+                    sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
+
+                    //get the id from the sale mode
+                    sale.Id = sql.LoadDataInTransaction<int, dynamic>("dbo.spSale_Lookup", new { sale.CashierId, sale.SaleDate }).FirstOrDefault();
+
+                    //finish filling in the detail models
+                    foreach (var item in details)
+                    {
+                        item.SaleId = sale.Id;
+
+                        //save the sale detail models
+                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
+                    }
+
+                    sql.CommitTransaction();
+                }
+                catch
+                {
+                    sql.RoolBackTransaction();
+                    throw;
+                }              
             }
+            #endregion
         }
     }
 }

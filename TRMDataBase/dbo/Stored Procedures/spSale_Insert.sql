@@ -12,5 +12,6 @@ begin
 	insert into dbo.Sale(CashierId,SaleDate,SubTotal,Tax,Total)
 	values(@CashierId,@SaleDate,@SubTotal,@Tax,@Total);
 
-	select @Id=@@identity;
+	--return le id de l'objet inserer
+	select @Id = Scope_Identity(); 
 end
