@@ -10,31 +10,31 @@ namespace TRMDLL.DataAccess
 {
     public class SaleData
     {
-        public void SaveSale(SaleModel saleInfo,string cashierId)
+        public void SaveSale(SaleModel saleInfo, string cashierId)
         {
 
             //start filling in the sale detail models we will save to the database
             List<SaleDetailDBModel> details = new List<SaleDetailDBModel>();
             ProductData product = new ProductData();
-            var taxRate = ConfigHelper.GetTaxRate()/100;
+            var taxRate = ConfigHelper.GetTaxRate() / 100;
 
             foreach (var item in saleInfo.SaleDetails)
             {
-                var detail=new SaleDetailDBModel
+                var detail = new SaleDetailDBModel
                 {
                     ProductId = item.ProductId,
                     Quantity = item.Quantity
                 };
                 //get the information about this product
-                var productInfo=product.GetProductById(item.ProductId);
-                if(productInfo == null)
+                var productInfo = product.GetProductById(item.ProductId);
+                if (productInfo == null)
                 {
                     throw new Exception($"the product id of {item.ProductId} not found in database");
                 }
 
                 detail.PurchasePrice = productInfo.RetailPrice * detail.Quantity;
 
-                if(productInfo.IsTaxable)
+                if (productInfo.IsTaxable)
                 {
                     detail.Tax = detail.PurchasePrice * taxRate;
                 }
@@ -47,7 +47,7 @@ namespace TRMDLL.DataAccess
             {
                 Subtotal = details.Sum(x => x.PurchasePrice),
                 Tax = details.Sum(x => x.Tax),
-                CashierId=cashierId
+                CashierId = cashierId
             };
 
             sale.Total = sale.Subtotal + sale.Tax;
@@ -59,7 +59,7 @@ namespace TRMDLL.DataAccess
 
             ////get the id from the sale mode
             //sale.Id=sql.LoadData<int, dynamic>("dbo.spSale_Lookup", new {sale.CashierId,sale.SaleDate }, "TRMDataBase").FirstOrDefault();
-           
+
             ////finish filling in the detail models
             //foreach (var item in details)
             //{
@@ -71,7 +71,7 @@ namespace TRMDLL.DataAccess
             #endregion
 
             #region Rapped in transaction (transaction in C#)(faire attention a la non fermeture des transactions problemes de performance)
-            
+
             using (SQLDataAccess sql = new SQLDataAccess())
             {
                 try
@@ -99,9 +99,19 @@ namespace TRMDLL.DataAccess
                 {
                     sql.RoolBackTransaction();
                     throw;
-                }              
+                }
             }
             #endregion
+        }
+
+
+        public List<SaleReportModel> GetSaleReport()
+        {
+            SQLDataAccess sql = new SQLDataAccess();
+
+            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "TRMDataBase");
+
+            return output;
         }
     }
 }
