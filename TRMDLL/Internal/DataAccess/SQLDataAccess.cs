@@ -49,6 +49,8 @@ namespace TRMDLL.Internal.DataAccess
             _connection = new SqlConnection(connectionStringName);
             _connection.Open();
             _transaction = _connection.BeginTransaction();
+
+            _isClosed = false;
         }
 
         //param :value permet de ne pas suivre l'order of parameter dans la signature 
@@ -69,29 +71,42 @@ namespace TRMDLL.Internal.DataAccess
             commandType: CommandType.StoredProcedure, transaction: _transaction);
         }
 
+
+        private bool _isClosed=false;
+
         public void CommitTransaction()
         {
             _transaction?.Commit();
             _connection?.Close();
+            _isClosed = true;
         }
 
         public void RoolBackTransaction()
         {
             _transaction?.Rollback();
             _connection?.Close();
+            _isClosed = true;
         }
 
         #endregion
 
- 
-
         public void Dispose()
         {
-            CommitTransaction();
+            if (_isClosed==false)
+            {
+
+                try
+                {
+                    CommitTransaction();
+                }
+                catch 
+                {
+                   
+                }  
+            }
+            _transaction = null;
+            _connection = null;
         }
-
-
-
     }
 
     //Pourqoui transaction?
