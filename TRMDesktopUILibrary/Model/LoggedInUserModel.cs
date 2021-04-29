@@ -19,7 +19,7 @@ namespace TRMDesktopUILibrary.Model
 
         public DateTime CreatedDate { get; set; }
 
-        public void LogOffUser()
+        public void ResetUserModel()
         {
             Token = "";
             FirstName = "";

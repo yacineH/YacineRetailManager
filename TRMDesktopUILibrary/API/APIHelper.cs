@@ -63,6 +63,15 @@ namespace TRMDesktopUILibrary.API
             }
         }
 
+
+
+        public void LogOffUser()
+        {
+            //pour supprimer le token qui persiste dans l'url
+            _apiClient.DefaultRequestHeaders.Clear();
+        }
+
+
         public async Task GetLoggedInUserInfo(string token)
         {
             _apiClient.DefaultRequestHeaders.Clear();
