@@ -53,6 +53,7 @@ namespace TRMDesktopUI
             //ici container pour chaque instance un objet different
             _container.Instance(_container)
                 .PerRequest<IProductEndPoint, ProductEndPoint>()
+                .PerRequest<IUserEndPoint, UserEndPoint>()
                 .PerRequest<ISaleEndPoint, SaleEndPoint>();
             //ici container retourne une seul instance pour toutes les instances singleton
             _container
