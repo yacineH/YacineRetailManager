@@ -9,12 +9,10 @@ using TRMDLL.Models;
 
 namespace TRMDataManagerAPI.Controllers
 {
-    [Authorize(Roles = "Cashier")]
+    [Authorize(Roles = "Manager")]
     public class ProductController : ApiController
     {
-
-        [HttpGet]
-        public List<ProductModel> GetById()
+        public List<ProductModel> Get()
         {
             ProductData data = new ProductData();
 

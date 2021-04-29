@@ -3,9 +3,11 @@ using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using TRMDesktopUI.Models;
 using TRMDesktopUILibrary.API;
 using TRMDesktopUILibrary.Helpers;
@@ -19,15 +21,19 @@ namespace TRMDesktopUI.ViewModels
         private IConfigHelper _configHelper;
         private ISaleEndPoint _saleEndPoint;
         private IMapper _mapper;
+        private StatusInfoViewModel _status;
+        private IWindowManager _window; //pour message box (caliburnMicro)
 
         public  SalesViewModel(IProductEndPoint productEndPoint,
                                IConfigHelper configHelper,
-                               ISaleEndPoint saleEndPoint,IMapper mapper)
+                               ISaleEndPoint saleEndPoint,IMapper mapper,
+                               StatusInfoViewModel status,IWindowManager window)
         {
             _productEndPoint = productEndPoint;
             _configHelper = configHelper;
             _saleEndPoint = saleEndPoint;
             _mapper = mapper;
+            _status = status;
         }
           
 
@@ -37,7 +43,46 @@ namespace TRMDesktopUI.ViewModels
         protected async override void OnViewLoaded(object view)
         {
             base.OnViewLoaded(view);
-            await LoadProducts();
+            try
+            {
+                await LoadProducts();
+            }
+            catch (Exception ex)
+            {
+                dynamic settings = new ExpandoObject();
+                settings.WindowStartLocation = WindowStartupLocation.CenterOwner;
+                settings.ResizeMode = ResizeMode.NoResize;
+                settings.Title = "System Error";
+
+
+                #region version 1 deux dialogBox differentes
+                //_status est dans le constructeur
+                //premier dialogBox
+                //_status.UpdateMessage("Unauthorized access", "you do not have permission to interact with the Sales Form.");
+                //_window.ShowDialog(_status, null, settings);
+                //TryClose();
+                //deuxieme dialoBox qui s'ouvrira apres la fermeture de la premiere
+                //_status.UpdateMessage("Unauthorized access", "you do not have permission to interact with the Sales Form.");
+                //_window.ShowDialog(_status, null, settings);
+                //TryClose(); 
+                #endregion
+
+                //version 2ici on peut rajouter plusieurs messages dans une meme dialogBox
+                //var info=IoC.Get<StatusInfoViewModel>()
+
+                //version 3 une dialog pour chaque message d'erreur cath
+                if(ex.Message=="Unauthorized")
+                {
+                   _status.UpdateMessage("Unauthorized access", "you do not have permission to interact with the Sales Form.");
+                   _window.ShowDialog(_status, null, settings);
+                }
+                else
+                {
+                    _status.UpdateMessage("Fatal Exception", "you do not have permission to interact with the Sales Form.");
+                    _window.ShowDialog(_status, null, settings);
+                }
+                 TryClose();
+            }
         }
 
         private async Task LoadProducts()
