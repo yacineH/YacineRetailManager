@@ -12,7 +12,8 @@ namespace TRMDataManagerAPI.Controllers
     [Authorize]
     public class InventoryController : ApiController
     {
-        //this is endpoint
+        //manager ou bien admin
+        [Authorize(Roles = "Manager,Admin")]
         public List<InventoryModel> Get()
         {
             InventoryData inventory = new InventoryData();
@@ -20,7 +21,11 @@ namespace TRMDataManagerAPI.Controllers
             return inventory.GetInventory();
         }
 
-        //this is endpoint
+        //warehouse and Admin
+        //[Authorize(Roles = "WareHouseWorker")]
+        //[Authorize(Roles = "Admin")]
+
+        [Authorize(Roles = "Admin")]
         public void Post(InventoryModel inventory)
         {
             InventoryData item = new InventoryData();
