@@ -9,7 +9,7 @@ using TRMDLL.Models;
 
 namespace TRMDataManagerAPI.Controllers
 {
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Admin")]
     public class ProductController : ApiController
     {
         public List<ProductModel> Get()

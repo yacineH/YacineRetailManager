@@ -16,7 +16,7 @@ namespace TRMDesktopUILibrary.Model
 
 
        
-        public string MRoleList 
+        public string RoleList 
         {
             get
             {
